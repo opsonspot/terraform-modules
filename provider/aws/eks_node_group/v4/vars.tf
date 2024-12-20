@@ -128,10 +128,3 @@ variable "addon_aws_guardduty_agent_version" {
 variable "aws_autoscaling_group_tag_create" {
   default = false
 }
-
-variable "aws_autoscaling_group_tag" {
-  type = map(any)
-    default = {
-        Author : "Terraform"
-    }
-}

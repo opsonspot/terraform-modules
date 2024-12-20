@@ -108,12 +108,29 @@ resource "aws_eks_addon" "aws_guardduty_agent" {
   addon_version               = var.addon_aws_guardduty_agent_version
 }
 
-
-resource "aws_autoscaling_group_tag" "main" {
-  count = "${var.aws_autoscaling_group_tag_create}" ? 1 : 0
-
+resource "aws_autoscaling_group_tag" "multiple_tags" {
   depends_on = [aws_eks_node_group.main]
 
-  autoscaling_group_name = flatten([for resources in aws_eks_node_group.main.resources : resources.autoscaling_groups])[0].name
-  tag = var.aws_autoscaling_group_tag
+  # Create a resource for each combination of ASG and tag
+  for_each = {
+    for pair in flatten([
+      for asg in flatten([
+        for resources in aws_eks_node_group.main.resources : resources.autoscaling_groups
+      ]) : [
+        for key, value in var.tags : {
+          asg_name = asg.name
+          tag_key  = key
+          tag_value = value
+        }
+      ]
+    ]) : "${pair.asg_name}-${pair.tag_key}" => pair
+  }
+
+  autoscaling_group_name = each.value.asg_name
+
+  tag {
+    key                 = each.value.tag_key
+    value               = each.value.tag_value
+    propagate_at_launch = true
+  }
 }

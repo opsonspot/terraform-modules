@@ -114,11 +114,6 @@ resource "aws_autoscaling_group_tag" "main" {
 
   depends_on = [aws_eks_node_group.main]
 
-  for_each = toset(
-    [for asg in flatten(
-      [for resources in aws_eks_node_group.main.resources : resources.autoscaling_groups]
-    ) : asg.name]
-  )
-  autoscaling_group_name = each.value
+  autoscaling_group_name = flatten([for resources in aws_eks_node_group.main.resources : resources.autoscaling_groups])[0].name
   tag = var.aws_autoscaling_group_tag
 }

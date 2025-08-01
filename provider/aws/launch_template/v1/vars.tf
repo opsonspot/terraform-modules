@@ -54,6 +54,7 @@ variable "iam_instance_profile_name" {
 
 variable "image_id" {
   type = string
+  default = null
 }
 
 variable "shutdown_behavior" {
@@ -99,6 +100,11 @@ variable "metadata_hop_limit" {
 variable "metadata_tags" {
   type    = string
   default = "enabled"
+}
+
+variable "metadata_http_protocol_ipv6" {
+  type    = string
+  default = "disabled"
 }
 
 variable "enable_metadata_options" {

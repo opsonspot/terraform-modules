@@ -74,6 +74,7 @@ resource "aws_launch_template" "this" {
       http_tokens                 = var.metadata_http_tokens
       http_put_response_hop_limit = var.metadata_hop_limit
       instance_metadata_tags      = var.metadata_tags
+      http_protocol_ipv6          = var.metadata_http_protocol_ipv6
     }
   }
 

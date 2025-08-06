@@ -7,7 +7,10 @@ variable "block_device_mappings" {
   type = list(object({
     device_name = string
     ebs = object({
-      volume_size = number
+      volume_size           = number
+      volume_type           = optional(string, "gp3") 
+      delete_on_termination = optional(bool, true)
+      encrypted             = optional(bool, true)
     })
   }))
 }

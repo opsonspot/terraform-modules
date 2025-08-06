@@ -1,7 +1,7 @@
 module "launch_template" {
   count = "${var.launch_template_enabled}" ? 1 : 0
   source = "github.com/opsonspot/terraform-modules//provider/aws/launch_template/v1"
-  name = "var.node_group_name"
+  name = var.node_group_name
 
   metadata_http_endpoint = "enabled"
   metadata_http_tokens = "optional"
@@ -67,9 +67,9 @@ resource "aws_eks_node_group" "main" {
   }
 
   dynamic "launch_template" {
-    for_each = var.launch_template ? 1 : 0
+    for_each = var.launch_template ? [1] : []
     content {
-      id = module.launch_template.launch_template_id
+      id = module.launch_template[0].launch_template_id
       version = "$Latest"
     }
   }
@@ -79,7 +79,18 @@ resource "aws_eks_node_group" "main" {
     ignore_changes = [scaling_config[0].desired_size]
   }
 
-  depends_on = var.launch_template_enabled ?  [module.launch_template] : []
+  # Only include disk_size when NOT using launch template
+  dynamic "disk_size" {
+    for_each = var.launch_template_enabled ? [] : [1]
+    content {
+      disk_size = var.disk_size
+    }
+  }
+
+  depends_on = concat(
+    var.launch_template_enabled ? [module.launch_template] : [],
+    []
+  )
 }
 
 

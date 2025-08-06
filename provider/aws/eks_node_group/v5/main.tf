@@ -2,7 +2,7 @@ module "launch_template" {
   count  = var.create_launch_template ? 1 : 0
   source = "github.com/opsonspot/terraform-modules//provider/aws/launch_template/v1"
   name   = var.node_group_name
-
+  shutdown_behavior = null
   metadata_http_endpoint      = "enabled"
   metadata_http_tokens        = "optional"
   metadata_hop_limit          = 3

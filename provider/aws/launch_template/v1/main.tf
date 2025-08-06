@@ -8,6 +8,9 @@ resource "aws_launch_template" "this" {
 
       ebs {
         volume_size = block_device_mappings.value.ebs.volume_size
+        volume_type           = try(block_device_mappings.value.ebs.volume_type, "gp3")
+        delete_on_termination = try(block_device_mappings.value.ebs.delete_on_termination, true)
+        encrypted             = try(block_device_mappings.value.ebs.encrypted, true)
       }
     }
   }

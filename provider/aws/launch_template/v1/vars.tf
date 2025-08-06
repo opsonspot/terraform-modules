@@ -154,13 +154,3 @@ variable "user_data" {
   type    = string
   default = ""
 }
-
-variable "launch_template_enabled" {
-  type = bool
-  default = true
-}
-
-variable "launch_template" {
-  type    = bool
-  default = true
-}

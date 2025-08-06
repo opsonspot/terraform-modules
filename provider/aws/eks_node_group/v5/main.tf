@@ -1,5 +1,5 @@
 module "launch_template" {
-  count  = var.launch_template_enabled ? 1 : 0
+  count  = var.create_launch_template ? 1 : 0
   source = "github.com/opsonspot/terraform-modules//provider/aws/launch_template/v1"
   name   = var.node_group_name
 
@@ -22,6 +22,13 @@ module "launch_template" {
   ]
 }
 
+locals {
+  # Use created launch template if available, otherwise use provided variables
+  use_launch_template = var.create_launch_template || (var.launch_template_id != null && var.launch_template_id != "")
+  final_launch_template_id = var.create_launch_template ? module.launch_template[0].launch_template_id : var.launch_template_id
+  final_launch_template_version = var.create_launch_template ? "$Latest" : var.launch_template_version
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name = var.cluster_name
 
@@ -31,7 +38,7 @@ resource "aws_eks_node_group" "main" {
   subnet_ids = var.subnet_ids
 
   ami_type       = var.ami_type
-  disk_size      = var.launch_template_enabled ? null : var.disk_size
+  disk_size = local.use_launch_template ? null : var.disk_size
   instance_types = var.instance_types
   capacity_type  = var.capacity_type
 
@@ -67,10 +74,10 @@ resource "aws_eks_node_group" "main" {
   }
 
   dynamic "launch_template" {
-    for_each = var.launch_template ? [1] : []
+    for_each = local.use_launch_template ? [1] : []
     content {
-      id = module.launch_template[0].launch_template_id
-      version = "$Latest"
+      id      = local.final_launch_template_id
+      version = local.final_launch_template_version
     }
   }
 

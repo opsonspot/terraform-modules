@@ -22,6 +22,10 @@ module "launch_template" {
   ]
 }
 
+locals {
+  node_group_depends_on = var.launch_template_enabled ? [module.launch_template] : []
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name = var.cluster_name
 
@@ -87,10 +91,7 @@ resource "aws_eks_node_group" "main" {
     }
   }
 
-  depends_on = concat(
-    var.launch_template_enabled ? [module.launch_template] : [],
-    []
-  )
+  depends_on = local.node_group_depends_on
 }
 
 

@@ -62,7 +62,7 @@ variable "image_id" {
 
 variable "shutdown_behavior" {
   type    = string
-  default = "terminate"
+  default = "null"
 }
 
 variable "instance_type" {

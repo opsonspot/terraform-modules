@@ -1,3 +1,34 @@
+module "launch_template" {
+  count  = var.create_launch_template ? 1 : 0
+  source = "github.com/opsonspot/terraform-modules//provider/aws/launch_template/v1"
+  name   = var.node_group_name
+  shutdown_behavior = null
+  metadata_http_endpoint      = "enabled"
+  metadata_http_tokens        = "optional"
+  metadata_hop_limit          = 3
+  metadata_http_protocol_ipv6 = "enabled"
+  metadata_tags               = "enabled"
+
+  block_device_mappings = [
+    {
+      device_name = "/dev/xvda"
+      ebs = {
+        volume_size           = var.disk_size
+        volume_type           = "gp3"
+        delete_on_termination = true
+        encrypted             = true
+      }
+    }
+  ]
+}
+
+locals {
+  # Use created launch template if available, otherwise use provided variables
+  use_launch_template = var.create_launch_template || (var.launch_template_id != null && var.launch_template_id != "")
+  final_launch_template_id = var.create_launch_template ? module.launch_template[0].launch_template_id : var.launch_template_id
+  final_launch_template_version = var.create_launch_template ? "$Latest" : var.launch_template_version
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name = var.cluster_name
 
@@ -7,7 +38,7 @@ resource "aws_eks_node_group" "main" {
   subnet_ids = var.subnet_ids
 
   ami_type       = var.ami_type
-  disk_size      = var.disk_size
+  disk_size = local.use_launch_template ? null : var.disk_size
   instance_types = var.instance_types
   capacity_type  = var.capacity_type
 
@@ -42,15 +73,19 @@ resource "aws_eks_node_group" "main" {
     }
   }
 
-  launch_template {
-    id      = var.launch_template_id
-    version = var.launch_template_version
+  dynamic "launch_template" {
+    for_each = local.use_launch_template ? [1] : []
+    content {
+      id      = local.final_launch_template_id
+      version = local.final_launch_template_version
+    }
   }
 
   # Optional: Allow external changes without Terraform plan difference
   lifecycle {
     ignore_changes = [scaling_config[0].desired_size]
   }
+
 }
 
 

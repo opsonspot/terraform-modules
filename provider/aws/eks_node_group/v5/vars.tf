@@ -136,26 +136,18 @@ variable "aws_region" {
 variable "launch_template_id" {
   description = "The ID of the launch template to be used for the EKS node group."
   type        = string
+  default = null
 }
 
 variable "launch_template_version" {
   description = "The version of the launch template to be used for the EKS node group."
   type        = string
+  default = null
 }
 
 variable "create_launch_template" {
   type = bool
   default = true
-}
-
-variable "launch_template_id" {
-  type = string
-  default = null
-}
-
-variable "launch_template_version" {
-  type = string
-  default = null
 }
 
 variable "launch_template_enabled" {

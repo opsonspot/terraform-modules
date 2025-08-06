@@ -78,6 +78,8 @@ resource "aws_eks_node_group" "main" {
   lifecycle {
     ignore_changes = [scaling_config[0].desired_size]
   }
+
+  depends_on = var.launch_template_enabled ?  [module.launch_template] : []
 }
 
 

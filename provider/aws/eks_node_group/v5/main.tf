@@ -1,3 +1,27 @@
+module "launch_template" {
+  count = "${var.launch_template_enabled}" ? 1 : 0
+  source = "github.com/opsonspot/terraform-modules//provider/aws/launch_template/v1"
+  name = "var.node_group_name"
+
+  metadata_http_endpoint = "enabled"
+  metadata_http_tokens = "optional"
+  metadata_hop_limit = 3
+  metadata_http_protocol_ipv6 = "enabled"
+  metadata_tags = "enabled"
+
+  block_device_mappings = [
+    {
+      device_name = "/dev/xvda"
+      ebs = {
+        volume_size           = var.disk_size
+        volume_type           = "gp3"
+        delete_on_termination = true
+        encrypted             = true
+      }
+    }
+  ]
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name = var.cluster_name
 
@@ -42,9 +66,12 @@ resource "aws_eks_node_group" "main" {
     }
   }
 
-  launch_template {
-    id      = var.launch_template_id
-    version = var.launch_template_version
+  dynamic "launch_template" {
+    for_each = var.launch_template ? 1 : 0
+    content {
+      id = module.launch_template.launch_template_id
+      version = "$Latest"
+    }
   }
 
   # Optional: Allow external changes without Terraform plan difference

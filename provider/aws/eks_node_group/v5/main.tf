@@ -22,10 +22,6 @@ module "launch_template" {
   ]
 }
 
-locals {
-  node_group_depends_on = var.launch_template_enabled ? [module.launch_template] : []
-}
-
 resource "aws_eks_node_group" "main" {
   cluster_name = var.cluster_name
 
@@ -35,7 +31,7 @@ resource "aws_eks_node_group" "main" {
   subnet_ids = var.subnet_ids
 
   ami_type       = var.ami_type
-  disk_size      = var.disk_size
+  disk_size      = var.launch_template_enabled ? null : var.disk_size
   instance_types = var.instance_types
   capacity_type  = var.capacity_type
 
@@ -83,9 +79,6 @@ resource "aws_eks_node_group" "main" {
     ignore_changes = [scaling_config[0].desired_size]
   }
 
-  disk_size = var.launch_template_enabled ? null : var.disk_size
-
-  depends_on = local.node_group_depends_on
 }
 
 

@@ -1,13 +1,13 @@
 module "launch_template" {
-  count = "${var.launch_template_enabled}" ? 1 : 0
+  count  = var.launch_template_enabled ? 1 : 0
   source = "github.com/opsonspot/terraform-modules//provider/aws/launch_template/v1"
-  name = var.node_group_name
+  name   = var.node_group_name
 
-  metadata_http_endpoint = "enabled"
-  metadata_http_tokens = "optional"
-  metadata_hop_limit = 3
+  metadata_http_endpoint      = "enabled"
+  metadata_http_tokens        = "optional"
+  metadata_hop_limit          = 3
   metadata_http_protocol_ipv6 = "enabled"
-  metadata_tags = "enabled"
+  metadata_tags               = "enabled"
 
   block_device_mappings = [
     {
@@ -83,13 +83,7 @@ resource "aws_eks_node_group" "main" {
     ignore_changes = [scaling_config[0].desired_size]
   }
 
-  # Only include disk_size when NOT using launch template
-  dynamic "disk_size" {
-    for_each = var.launch_template_enabled ? [] : [1]
-    content {
-      disk_size = var.disk_size
-    }
-  }
+  disk_size = var.launch_template_enabled ? null : var.disk_size
 
   depends_on = local.node_group_depends_on
 }

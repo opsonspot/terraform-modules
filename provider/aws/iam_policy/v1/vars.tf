@@ -5,3 +5,10 @@ variable "name" {
 variable "policy" {
     
 }
+
+variable "tags" {
+    type = map(any)
+    default = {
+        Author : "Terraform"
+    }
+}

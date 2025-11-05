@@ -43,9 +43,20 @@ resource "aws_opensearch_domain" "main" {
     enabled = var.node_to_node_encryption_enabled
   }
 
-  domain_endpoint_options {
-    enforce_https       = var.enforce_https
-    tls_security_policy = var.tls_security_policy
+  dynamic "domain_endpoint_options" {
+    # Only create the domain_endpoint_options block when a custom
+    # endpoint is enabled. When disabled the block will be omitted.
+    for_each = var.custom_endpoint_enabled ? [1] : []
+    content {
+      enforce_https       = var.enforce_https
+      tls_security_policy = var.tls_security_policy
+
+      # When present, enable the custom endpoint and provide the values
+      # passed in by the module consumer.
+      custom_endpoint_enabled         = true
+      custom_endpoint                 = var.custom_endpoint
+      custom_endpoint_certificate_arn = var.custom_endpoint_certificate_arn
+    }
   }
 
   advanced_security_options {

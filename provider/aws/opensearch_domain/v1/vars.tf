@@ -123,6 +123,24 @@ variable "tls_security_policy" {
   default     = "Policy-Min-TLS-1-2-2019-07"
 }
 
+variable "custom_endpoint_enabled" {
+  description = "Whether to enable a custom endpoint for the OpenSearch domain"
+  type        = bool
+  default     = false
+}
+
+variable "custom_endpoint" {
+  description = "Custom endpoint to use for the domain (e.g. search.example.com). Only used when custom_endpoint_enabled = true"
+  type        = string
+  default     = null
+}
+
+variable "custom_endpoint_certificate_arn" {
+  description = "ARN of the ACM certificate to use for the custom endpoint. Only used when custom_endpoint_enabled = true"
+  type        = string
+  default     = null
+}
+
 variable "advanced_security_options_enabled" {
   description = "Whether to enable advanced security options"
   type        = bool

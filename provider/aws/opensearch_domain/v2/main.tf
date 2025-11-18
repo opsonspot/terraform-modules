@@ -28,10 +28,8 @@ resource "aws_opensearch_domain" "main" {
         enabled = true
       }
     }
-  }
 
-  # Coordinator node configuration
-  dynamic "node_options" {
+    dynamic "node_options" {
     for_each = var.coordinator_node_enabled ? [1] : []
     content {
       node_config {
@@ -40,6 +38,7 @@ resource "aws_opensearch_domain" "main" {
         count   = var.coordinator_node_count
       }
     }
+  }
   }
 
   ebs_options {

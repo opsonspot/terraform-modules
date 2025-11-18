@@ -30,16 +30,16 @@ resource "aws_opensearch_domain" "main" {
     }
 
     dynamic "node_options" {
-    for_each = var.coordinator_node_enabled ? [1] : []
-    content {
+      for_each = var.coordinator_node_enabled ? [1] : []
+      content {
         node_type = "coordinator"
-      node_config {
-        enabled = true
-        type    = var.coordinator_node_type
-        count   = var.coordinator_node_count
+        node_config {
+          enabled = true
+          type    = var.coordinator_node_type
+          count   = var.coordinator_node_count
+        }
       }
     }
-  }
   }
 
   ebs_options {
